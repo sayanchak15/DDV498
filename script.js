@@ -91,6 +91,22 @@ svgMonth.selectAll("rect")
             .attr("dy", ".25em")
             .attr("transform", "rotate(-90)")
             .text("Total Unit Produced in the month in Log Scale");
+
+            const annotations = [
+                {
+                    note: {
+                        label: "Month volumes are evenly distributed. Click on any month to see Details",
+                        title: "Log volume of production by month",
+                        wrap: 200
+                      },
+                      x: 150,
+                      y: 250,
+                      dy: -207,
+                      dx: -12,
+                      color: "black"
+                    }]
+        
+           callAnno(svgMonth, annotations);
  }
 
 
@@ -166,7 +182,21 @@ svgRegion.selectAll("rect")
             .attr("dy", ".25em")
             .attr("transform", "rotate(-90)")
             .text("Producing Regions");
-            
+ 
+            const annotations = [
+                {
+                    note: {
+                        label: "California has highest production",
+                        title: "Regional production",
+                        wrap: 200
+                      },
+                      x: 150,
+                      y: 650,
+                      dy: -107,
+                      dx: 112
+                    }]
+        
+           callAnno(svgRegion, annotations);
  
 }
 
@@ -266,4 +296,35 @@ var r =svg.selectAll("rect")
     .attr("dy", ".25em")
     .attr("transform", "rotate(-90)")
     .text("Average Selling Price");
+
+    const annotations = [
+        {
+            note: {
+                label: "Price is steady accross years because of large Production. Click on any Year to see production details.",
+                title: "Avocado price over years",
+                wrap: 200
+              },
+              x: 150,
+              y: 250,
+              dy: -130,
+              dx: -12,
+              color: "black"
+            }]
+
+   callAnno(svg,annotations);
+      
+}
+
+function callAnno(svg, annotations){
+       
+
+        const makeAnnotations = d3.annotation()
+          .type(d3.annotationLabel)
+          .annotations(annotations)
+
+        svg
+          .append("g")
+          .attr("class", "annotation-group")
+          .call(makeAnnotations)
+
 }
