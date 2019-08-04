@@ -55,22 +55,42 @@ svgMonth.selectAll("rect")
         .enter()
         .append("rect") // Add a new rect for each new elements
         .attr("x", function(d) { return x(d.Month); })
-         .attr("y", function(d) { return y(d.logVolume); })
          .attr("width", x.bandwidth())
-         .attr("height", function(d) { return height - y(d.logVolume); })
-         .attr("fill", "#69b3a2")
+         .attr("y",height)
+        .attr("height",0)
+         .attr("fill", "green")
          .on('mouseover', function(d,i) {
-            console.log("mouse");
             tooltip.style("opacity", 1)
                     .style("left",(d3.event.pageX)+"px")
                     .style("top",(d3.event.pageY)+"px")
-                    .html("Volume "+d.Volume+" Units in Month "+d.Month);})
+                    .html("Type = " +d.Type+ " Total Volume "+d.Volume+" Units in Month "+d.Month);})
         .on("mouseout", function() { tooltip.style("opacity", 0) })
          .on("click", function(d,i){
             console.log("click");
             document.getElementById("byregion").innerHTML = "";
             byRegion(d); 
-            });
+            })
+            .transition()
+            .duration(2000)
+            .attr("y", function(d) { return y(d.logVolume); })
+            .attr("height", function(d) { return height - y(d.logVolume); })
+
+
+            svgMonth.append("text")
+            .attr("class", "x label")
+            .attr("text-anchor", "end")
+            .attr("x", width/2)
+            .attr("y", height + 40)
+            .text("Production Months");
+        
+            svgMonth.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "end")
+            .attr("y", -40)
+            .attr("x", 0)
+            .attr("dy", ".25em")
+            .attr("transform", "rotate(-90)")
+            .text("Total Unit Produced in the month in Log Scale");
  }
 
 
@@ -81,6 +101,7 @@ svgMonth.selectAll("rect")
      var regionVolume = monthyearregion.filter(function(d){
         return (d.Month === data.Month && d.Year == data.Year && d.Type === data.Type);
      });
+     console.log(d3.max(regionVolume, function(d){return parseInt(d.Volume)}));
      console.log(regionVolume);
      var margin = {top: 30, right: 30, bottom: 70, left: 60},
      width = 800 - margin.left - margin.right,
@@ -95,7 +116,7 @@ svgMonth.selectAll("rect")
 
 // Add Y axis            
 var y = d3.scaleBand()
-            .range([ 0, width ])
+            .range([ 0, height ])
             .domain(regionVolume.map(function(d) { return d.Region; }))
             .padding(0.2);
         svgRegion.append("g")
@@ -103,11 +124,13 @@ var y = d3.scaleBand()
     
     // Add X axis
 var x = d3.scaleLinear()
-            .domain([3, 9])
-            .range([ 0, height]);
+            .range([0, width])
+            .domain([ 0, d3.max(regionVolume, function(d){return parseInt(d.Volume)})]);
         svgRegion.append("g")
-            .attr("transform", "translate(0," + (height +10)+ ")")
+            .attr("transform", "translate(0," + (height)+ ")")
             .call(d3.axisBottom(x));
+
+var tooltip = d3.select("#tooltip");
 
 svgRegion.selectAll("rect")
         .data(regionVolume)
@@ -116,8 +139,34 @@ svgRegion.selectAll("rect")
             .attr("x", 0)
             .attr("y", function(d) { return y(d.Region); })
             .attr("height", y.bandwidth())
-            .attr("width", function(d) { return x(d.LogVolume); })
-            .attr("fill", "#69b3a2");
+            .on('mouseover', function(d,i) {
+                tooltip.style("opacity", 1)
+                        .style("left",(d3.event.pageX)+"px")
+                        .style("top",(d3.event.pageY)+"px")
+                        .html("Type = " +d.Type+ " \nTotal Volume is $ "+truncateDecimals(d.Volume,2)+" in Month of "+d.Month);})
+            .on("mouseout", function() { tooltip.style("opacity", 0) })
+            .transition()
+            .duration(1000)
+            .attr("width", function(d) { return x(d.Volume); })
+            .attr("fill", "green")
+
+
+            svgRegion.append("text")
+            .attr("class", "x label")
+            .attr("text-anchor", "end")
+            .attr("x", width/2)
+            .attr("y", height + 40)
+            .text("Total Volume in Thousands");
+        
+            svgRegion.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "end")
+            .attr("y", -100)
+            .attr("x", 0)
+            .attr("dy", ".25em")
+            .attr("transform", "rotate(-90)")
+            .text("Producing Regions");
+            
  
 }
 
@@ -137,6 +186,7 @@ function truncateDecimals (num, digits) {
 async function update(Type){
     document.getElementById("my_dataviz").innerHTML = "";
     document.getElementById("bymonth").innerHTML = "";
+    document.getElementById("byregion").innerHTML = "";
     const yearAndPrice1 = await d3.csv("year-price-all.csv");
     console.log(Type);
     var yearAndPrice = yearAndPrice1.filter(function(d){
@@ -175,25 +225,45 @@ svg.append("g")
 
 var tooltip = d3.select("#tooltip");
 
-svg.selectAll("rect")
+var r =svg.selectAll("rect")
     .data(yearAndPrice)
     .enter()
     .append("rect") // Add a new rect for each new elements
     .attr("x", function(d) { return x(d.Year); })
-    .attr("y", function(d) { return y(d.AvgPrice); })
     .attr("width", x.bandwidth())
-    .attr("height", function(d) { return height - y(d.AvgPrice); })
-    .attr("fill", "#69b3a2")
+    .attr("y",height)
+    .attr("height",0)
+    .attr("fill", "green")
     .on('mouseover', function(d,i) {
         tooltip.style("opacity", 1)
                 .style("left",(d3.event.pageX)+"px")
                 .style("top",(d3.event.pageY)+"px")
-                .html("Price $"+truncateDecimals(d.AvgPrice,2)+" in Year "+d.Year);})
+                .html("Type = " +d.Type+ " Price $"+truncateDecimals(d.AvgPrice,2)+" in Year "+d.Year);})
     .on("mouseout", function() { tooltip.style("opacity", 0) })
     .on("click", function(d,i){
         console.log("click");
         document.getElementById("bymonth").innerHTML = "";
         byMonth(d); 
         document.getElementById("byregion").innerHTML = "";
-        });
+        })
+    .transition()
+    .duration(1000)
+    .attr("y", function(d) { return y(d.AvgPrice); })
+    .attr("height", function(d) { return height - y(d.AvgPrice); })
+
+    svg.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", width/2)
+    .attr("y", height + 40)
+    .text("Production Years");
+
+    svg.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("y", -40)
+    .attr("x", 0)
+    .attr("dy", ".25em")
+    .attr("transform", "rotate(-90)")
+    .text("Average Selling Price");
 }
