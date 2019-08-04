@@ -15,8 +15,8 @@ update('conventional');
 
     const yearmonthvolume = await d3.csv("year-month-volume.csv");
     var margin = {top: 30, right: 30, bottom: 70, left: 60},
-        width = 460 - margin.left - margin.right,
-        height = 400 - margin.top - margin.bottom;
+        width = 800 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
 
 var monthVolume = yearmonthvolume.filter(function(d){
            return (d.Year === data.Year && d.Type ===data.Type);
@@ -41,7 +41,7 @@ svgMonth.append("g")
 
 // Add Y axis
 var y = d3.scaleLinear()
-        .domain([8.2, d3.max(monthVolume, function(d){return d.logVolume})])
+        .domain([d3.min(monthVolume, function(d){return d.logVolume})- 0.1, d3.max(monthVolume, function(d){return d.logVolume})])
         .range([ height, 0]);
 svgMonth.append("g")
         .call(d3.axisLeft(y));
@@ -225,8 +225,8 @@ async function update(Type){
 
      
     var margin = {top: 30, right: 30, bottom: 70, left: 60},
-    width = 460 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+    width = 800 - margin.left - margin.right,
+    height =600 - margin.top - margin.bottom;
 
     var svg = d3.select("#my_dataviz")
                     .append("svg")
